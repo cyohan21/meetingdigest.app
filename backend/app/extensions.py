@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_cors import CORS     # Cors allows for frontend and backend frameworks to communicate through different localhost ports.
 from flask_jwt_extended import JWTManager
+
 db = SQLAlchemy()
 login_manager = LoginManager()
 cors = CORS()
