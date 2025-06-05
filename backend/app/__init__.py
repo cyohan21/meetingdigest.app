@@ -1,7 +1,7 @@
 import os
 from flask import Flask
 from .extensions import db
-from config import DevConfig, ProdConfig, TestConfig
+from config import DevConfig, ProdConfig, TestConfig, PytestConfig
 from dotenv import load_dotenv
 from.routes.record import transcribe_bp
 from .routes.auth import auth_bp
@@ -21,7 +21,8 @@ def create_app():
     config_map = {
         "dev": DevConfig,
         "prod": ProdConfig,
-        "test": TestConfig
+        "test": TestConfig,
+        "pytest": PytestConfig
     }
 
     app = Flask(__name__)
