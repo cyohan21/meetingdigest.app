@@ -6,7 +6,6 @@ from flask_jwt_extended import (
 )
 from app.extensions import db
 from app.models import User
-from datetime import datetime, timezone
 
 google_auth_bp = Blueprint("google_auth", __name__)
 

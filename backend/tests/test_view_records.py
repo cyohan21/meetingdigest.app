@@ -1,6 +1,5 @@
 from app.models import User, Record
 from app.extensions import db
-from flask_jwt_extended import create_access_token
 from datetime import datetime, timezone
 
 def test_get_all_records_empty(client, auth_headers):

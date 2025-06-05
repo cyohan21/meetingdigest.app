@@ -4,7 +4,6 @@ from ..utils.transcribe import transcribe_audio
 from ..utils.summarize import summarize_transcript
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models import Record
-from datetime import datetime, timezone
 from app.extensions import db
 import os
 from openai import OpenAIError
