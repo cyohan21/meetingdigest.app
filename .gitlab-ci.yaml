@@ -1,0 +1,27 @@
+stages:
+  - deploy
+
+deploy_backend:
+  stage: deploy
+  image: python:3.13  # Use a Python Docker image
+  before_script:
+    - python --version
+    - pip install --upgrade pip
+  script:
+    # Clone repo already done by GitLab
+    - pip install -r backend/requirements.txt
+
+    # Create .env file
+    - echo "FLASK_APP=run.py" >> backend/.env
+    - echo "FLASK_ENV=test" >> backend/.env
+    - echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> backend/.env
+    - echo "SECRET_KEY=$SECRET_KEY" >> backend/.env
+    - echo "TEST_DATABASE_URL=$TEST_DATABASE_URL" >> backend/.env
+    - echo "DATABASE_URL=$DATABASE_URL" >> backend/.env
+    - echo "JWT_SECRET_KEY=$JWT_SECRET_KEY" >> backend/.env
+    - echo "GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" >> backend/.env
+    - echo "GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET" >> backend/.env
+
+    # Run the app
+    - cd backend
+    - python run.py
