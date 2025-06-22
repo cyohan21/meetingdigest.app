@@ -6,7 +6,10 @@ from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
     get_jwt,
-    verify_jwt_in_request
+    verify_jwt_in_request,
+    set_access_cookies,
+    set_refresh_cookies,
+    unset_jwt_cookies
 )
 from app.utils.password_tokens import generate_reset_token, confirm_reset_token
 from app.utils.email_tokens import generate_email_confirmation_token, confirm_email_token
@@ -24,6 +27,15 @@ def refresh_token():
     new_access_token = create_access_token(identity=user_id)
     return jsonify({"access_token": new_access_token}), 200
 
+@auth_bp.route("/me", methods=["GET"])
+@jwt_required()
+def me():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    return jsonify({"id": user.id, "email": user.email})
+
 
 @auth_bp.route("/register", methods=["POST"], endpoint="register")
 def register():
@@ -34,7 +46,7 @@ def register():
     backup_email = data.get("backup_email")
 
     if not username or not email or not password:
-        return jsonify({"error": "Email or password not entered."}), 400
+        return jsonify({"error": "Email, username or password not entered."}), 400
     
     if User.query.filter((User.email==email) | (User.username==username)).first():
         return jsonify({"mesg": "Username or email already registered."}), 409
@@ -99,11 +111,10 @@ def login():
     user.last_login = datetime.now(timezone.utc)
     db.session.commit()
 
-    return jsonify({
-        "access token": access_token,
-        "refresh token": refresh_token,
-        "user_id": user.id
-    }), 200
+    response = jsonify({"msg": "Login successful"})
+    set_access_cookies(response, access_token)
+    set_refresh_cookies(response, refresh_token)
+    return response
 
 @auth_bp.route("/logout", methods=["POST"], endpoint="logout")
 @jwt_required()
@@ -120,7 +131,9 @@ def logout():
     except Exception as e:
         print("[LOGOUT] Refresh token not provided or invalid.")
 
-    return jsonify({"msg": "Logged out from all sessions."}), 200
+    response = jsonify({"msg": "Logged out"})
+    unset_jwt_cookies(response)
+    return response
 
 
 @auth_bp.route("/forgot-password", methods=["POST"], endpoint="forgot-password")

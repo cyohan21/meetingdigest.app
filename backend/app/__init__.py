@@ -10,6 +10,8 @@ from .oauth import init_oauth
 from .routes.google_auth import google_auth_bp
 from .routes.view_records import view_records_bp
 from flask_migrate import Migrate
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 
 migrate = Migrate(compare_type=True)
 load_dotenv()
@@ -27,6 +29,9 @@ def create_app():
 
     app = Flask(__name__)
     app.config.from_object(config_map.get(env, DevConfig))
+    
+    CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+    jwt = JWTManager(app)
 
     db.init_app(app)
     migrate.init_app(app, db)

@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import os
+import datetime
 load_dotenv()
 
 class Config: # So other classes can inherit keys 
@@ -8,6 +9,13 @@ class Config: # So other classes can inherit keys
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
     GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
     GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+    JWT_TOKEN_LOCATION = ["cookies"]
+    JWT_COOKIE_SECURE = False  # Set to True in production (HTTPS)
+    JWT_ACCESS_COOKIE_NAME = "access_token_cookie"
+    JWT_REFRESH_COOKIE_NAME = "refresh_token_cookie"
+    JWT_COOKIE_CSRF_PROTECT = False  # Can be enabled later
+    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(minutes=15)
+    JWT_REFRESH_TOKEN_EXPIRES = datetime.timedelta(days=30)
 
 class DevConfig(Config):
     DEBUG = True
