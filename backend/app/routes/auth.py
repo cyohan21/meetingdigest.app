@@ -17,6 +17,7 @@ from app.extensions import db
 from app.models import User
 from datetime import datetime, timezone
 from app.extensions import jwt_blacklist
+from flask_cors import cross_origin
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -91,30 +92,36 @@ def verify_email():
     return jsonify({"msg": "Email verified successfully."}), 200
 
 @auth_bp.route("/login", methods=["POST"], endpoint="login")
+@cross_origin(origins=["http://localhost:5173"], supports_credentials=True)
 def login():
-    data = request.get_json()
-    email = data.get("email").lower()
-    password = data.get("password")
+    try:
+        data = request.get_json()
+        email = data.get("email", "").lower()
+        password = data.get("password")
 
-    user = User.query.filter_by(email=email).first()
-    if not user:
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return jsonify({"error": "User not found."}), 404
+
         if not check_password_hash(user.password_hash, password):
-            return jsonify({"msg": "Invalid credentials."}), 401
-        return jsonify({"error": "User not found."}), 400
-    
-    if not user.is_email_confirmed: # do not need data.get, as that will rely on user input (we don't want that.)
-        return jsonify({"error": "Please confirm your email first."}), 403
-    
-    access_token = create_access_token(identity=str(user.id))
-    refresh_token = create_refresh_token(identity=str(user.id))
+            return jsonify({"error": "Invalid credentials."}), 401
+        
+        if not user.is_email_confirmed: # do not need data.get, as that will rely on user input (we don't want that.)
+            return jsonify({"error": "Please confirm your email first."}), 403
+        
+        access_token = create_access_token(identity=str(user.id))
+        refresh_token = create_refresh_token(identity=str(user.id))
 
-    user.last_login = datetime.now(timezone.utc)
-    db.session.commit()
+        user.last_login = datetime.now(timezone.utc)
+        db.session.commit()
 
-    response = jsonify({"msg": "Login successful"})
-    set_access_cookies(response, access_token)
-    set_refresh_cookies(response, refresh_token)
-    return response
+        response = jsonify({"msg": "Login successful"})
+        set_access_cookies(response, access_token)
+        set_refresh_cookies(response, refresh_token)
+        return response
+    except Exception as e:
+        print("[LOGIN ERROR]", e)
+        return jsonify({"error": "Server error occurred"}), 500
 
 @auth_bp.route("/logout", methods=["POST"], endpoint="logout")
 @jwt_required()
