@@ -31,16 +31,29 @@ export function AuthProvider({children}: {children: ReactNode}) { // Children is
         .catch(() => setUser(null)) 
     }, [])
 
-    const login = async (email: string, password: string) => { 
-        await api.post("/auth/login", {email, password}); // Gets a cookie from the successful POST request
-        const res = await api.get("/auth/me"); // Uses the cookie to send a GET request
-        setUser(res.data); // Uses the cookie from the GET request to set a user.
+    const login = async (email: string, password: string) => {
+        try {
+            await api.post("/auth/login", {email, password}); // Gets a cookie from the successful POST request
+            const res = await api.get("/auth/me"); // Uses the cookie to send a GET request
+            setUser(res.data); // Uses the cookie from the GET request to set a user.
+        } 
+        catch (err: any) {
+            const message = err.response?.data?.error || "Login Failed";
+            throw new Error(message)
+        }
+        
     }
 
     const register = async (email: string, password: string) => {
-        await api.post("/auth/register", {email, password});
-        const res = await api.get("/auth/me");
-        setUser(res.data);
+        try {
+            await api.post("/auth/register", {email, password});
+            const res = await api.get("/auth/me");
+            setUser(res.data);
+        }
+        catch (err: any) {
+            const message = err.response?.data?.error || "Registration Failed";
+            throw new Error(message)
+        }
     }
 
     const logout = async() => {
