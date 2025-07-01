@@ -1,4 +1,4 @@
 backend/.env
 backend/venv
 backend/instance/*.db
-uploads
+uploads/
