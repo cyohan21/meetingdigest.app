@@ -1,4 +1,4 @@
-# Everything initialized here does not need to be imported for test files.
+import os
 import pytest
 from app import create_app
 from app.extensions import db
@@ -6,10 +6,15 @@ from config import PytestConfig
 from flask_jwt_extended import create_access_token
 from app.models import User
 
+# Ensure secrets are available for token generation
+os.environ.setdefault("SECRET_KEY", "test-secret")
+os.environ.setdefault("JWT_SECRET_KEY", "jwt-secret")
+
 @pytest.fixture
 def app():
     app = create_app()
     app.config.from_object(PytestConfig)
+    app.config["JWT_TOKEN_LOCATION"] = ["headers"]
 
     with app.app_context():
         db.create_all()

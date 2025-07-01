@@ -115,7 +115,11 @@ def login():
         user.last_login = datetime.now(timezone.utc)
         db.session.commit()
 
-        response = jsonify({"msg": "Login successful"})
+        response = jsonify({
+            "msg": "Login successful",
+            "access_token": access_token,
+            "refresh_token": refresh_token
+            })
         set_access_cookies(response, access_token)
         set_refresh_cookies(response, refresh_token)
         return response
@@ -183,7 +187,7 @@ def reset_password():
 
 
 @auth_bp.route("/change-email", methods=["PATCH"], endpoint="change-email")
-@jwt_required
+@jwt_required()
 def change_email():
     data = request.get_json()
     user_id = get_jwt_identity()
