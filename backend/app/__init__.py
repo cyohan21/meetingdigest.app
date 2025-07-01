@@ -3,7 +3,7 @@ from flask import Flask
 from .extensions import db
 from config import DevConfig, ProdConfig, TestConfig, PytestConfig
 from dotenv import load_dotenv
-from.routes.record import transcribe_bp
+from .routes.record import transcribe_bp
 from .routes.auth import auth_bp
 from .extensions import jwt
 from .oauth import init_oauth
